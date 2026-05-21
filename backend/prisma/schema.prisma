@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+
+  @@map("roles")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  roleId    Int      @map("role_id")
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  orders    Order[]
+
+  @@map("users")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  status   String    @default("ACTIVE")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id         Int         @id @default(autoincrement())
+  name       String
+  categoryId Int         @map("category_id")
+  category   Category    @relation(fields: [categoryId], references: [id])
+  price      Decimal
+  quantity   Int         @default(0)
+  image      String?
+  status     String      @default("ACTIVE")
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Customer {
+  id      Int      @id @default(autoincrement())
+  name    String
+  mobile1 String   @map("mobile_1")
+  mobile2 String?  @map("mobile_2")
+  address String?
+  email   String?
+  notes   String?
+  orders  Order[]
+
+  @@map("customers")
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  invoiceNo     String      @unique @map("invoice_no")
+  customerId    Int         @map("customer_id")
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  userId        Int         @map("user_id")
+  user          User        @relation(fields: [userId], references: [id])
+  status        String      @default("PENDING")
+  subtotal      Decimal
+  discount      Decimal     @default(0)
+  total         Decimal
+  paymentMethod String      @map("payment_method")
+  orderSource   String      @map("order_source")
+  notes         String?
+  createdAt     DateTime    @default(now()) @map("created_at")
+  orderItems    OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  qty       Int
+  price     Decimal
+  total     Decimal
+
+  @@map("order_items")
+}
