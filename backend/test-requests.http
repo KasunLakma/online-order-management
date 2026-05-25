@@ -137,14 +137,86 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
   "categoryId": {{categoryId}}
 }
 
-### 15. Delete Product (As Manager - Should Fail 403)
-DELETE http://localhost:5000/api/products/{{productId}}
+### 15. Create Customer (As Admin - Should Succeed)
+# @name createCustomerAdmin
+POST http://localhost:5000/api/customers
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "phone": "0771234567",
+  "address": "123 Main Street, Colombo",
+  "notes": "Premium customer"
+}
+
+### 16. Get All Customers (As Manager - Should Succeed)
+GET http://localhost:5000/api/customers
 Authorization: Bearer {{loginManager.response.body.token}}
 
-### 16. Delete Product (As Admin - Should Succeed)
+
+### ==========================================
+### Order Management API Testing Requests
+### ==========================================
+
+### 17. Place Order (As Manager - Should Succeed & Deduct Stock)
+# @name placeOrderManager
+@custId = {{createCustomerAdmin.response.body.customer.id}}
+POST http://localhost:5000/api/orders
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "customerId": {{custId}},
+  "discount": 50,
+  "paymentMethod": "CARD",
+  "orderSource": "WALK_IN",
+  "notes": "Deliver during office hours",
+  "orderItems": [
+    {
+      "productId": {{productId}},
+      "qty": 2,
+      "price": 1099.99
+    }
+  ]
+}
+
+### 18. Place Order with Insufficient Stock (Should Fail 400)
+POST http://localhost:5000/api/orders
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "customerId": {{custId}},
+  "orderItems": [
+    {
+      "productId": {{productId}},
+      "qty": 1000,
+      "price": 1099.99
+    }
+  ]
+}
+
+### 19. Get All Orders (As Manager - Should Succeed)
+GET http://localhost:5000/api/orders
+Authorization: Bearer {{loginManager.response.body.token}}
+
+### 20. Get Order by ID (As Admin - Should Succeed)
+@orderId = {{placeOrderManager.response.body.order.id}}
+GET http://localhost:5000/api/orders/{{orderId}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### ==========================================
+### Clean Up Requests (Optional)
+### ==========================================
+
+### 21. Delete Product (As Admin - Should Succeed)
 DELETE http://localhost:5000/api/products/{{productId}}
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
-### 17. Delete Category (As Admin - Should Succeed)
+### 22. Delete Category (As Admin - Should Succeed)
 DELETE http://localhost:5000/api/categories/{{categoryId}}
 Authorization: Bearer {{loginAdmin.response.body.token}}
+

@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import productRoutes from './routes/productRoutes';
+import customerRoutes from './routes/customerRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 
@@ -17,6 +19,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK', timestamp: new Date() });
