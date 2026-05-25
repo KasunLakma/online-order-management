@@ -29,3 +29,122 @@ Authorization: Bearer {{authToken}}
 ### 4. Logout
 POST http://localhost:5000/api/auth/logout
 Content-Type: application/json
+
+
+### ==========================================
+### Category Management API Testing Requests
+### ==========================================
+
+### 5. Create Category (As Admin - Should Succeed)
+# @name createCategoryAdmin
+POST http://localhost:5000/api/categories
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 6. Create Category (As Manager - Should Fail 403)
+POST http://localhost:5000/api/categories
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "name": "Home Appliances",
+  "status": "ACTIVE"
+}
+
+### 7. Get All Categories (As Manager - Should Succeed)
+GET http://localhost:5000/api/categories
+Authorization: Bearer {{loginManager.response.body.token}}
+
+### 8. Get All Categories (As Admin - Should Succeed)
+GET http://localhost:5000/api/categories
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 9. Update Category (As Admin - Should Succeed)
+@categoryId = {{createCategoryAdmin.response.body.category.id}}
+PUT http://localhost:5000/api/categories/{{categoryId}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Electronics & Gadgets",
+  "status": "ACTIVE"
+}
+
+### 10. Update Category (As Manager - Should Fail 403)
+PUT http://localhost:5000/api/categories/{{categoryId}}
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "name": "Hack Attempt"
+}
+
+
+### ==========================================
+### Product Management API Testing Requests
+### ==========================================
+
+### 11. Create Product (As Admin - Should Succeed)
+# @name createProductAdmin
+POST http://localhost:5000/api/products
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "iPhone 15 Pro",
+  "sku": "IPHONE15PRO-128",
+  "price": 999.99,
+  "quantity": 50,
+  "image": "https://example.com/iphone15.jpg",
+  "status": "ACTIVE",
+  "categoryId": {{categoryId}}
+}
+
+### 12. Create Product (As Manager - Should Fail 403)
+POST http://localhost:5000/api/products
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "name": "Samsung Galaxy S24",
+  "sku": "SAMSUNGS24-256",
+  "price": 899.99,
+  "quantity": 30,
+  "categoryId": {{categoryId}}
+}
+
+### 13. Get All Products (As Manager - Should Succeed)
+GET http://localhost:5000/api/products
+Authorization: Bearer {{loginManager.response.body.token}}
+
+### 14. Update Product (As Admin - Should Succeed)
+@productId = {{createProductAdmin.response.body.product.id}}
+PUT http://localhost:5000/api/products/{{productId}}
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "iPhone 15 Pro Max",
+  "sku": "IPHONE15PRO-128",
+  "price": 1099.99,
+  "quantity": 45,
+  "status": "ACTIVE",
+  "categoryId": {{categoryId}}
+}
+
+### 15. Delete Product (As Manager - Should Fail 403)
+DELETE http://localhost:5000/api/products/{{productId}}
+Authorization: Bearer {{loginManager.response.body.token}}
+
+### 16. Delete Product (As Admin - Should Succeed)
+DELETE http://localhost:5000/api/products/{{productId}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### 17. Delete Category (As Admin - Should Succeed)
+DELETE http://localhost:5000/api/categories/{{categoryId}}
+Authorization: Bearer {{loginAdmin.response.body.token}}

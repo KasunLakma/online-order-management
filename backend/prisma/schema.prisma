@@ -42,6 +42,7 @@ model Category {
 model Product {
   id         Int         @id @default(autoincrement())
   name       String
+  sku        String      @unique
   categoryId Int         @map("category_id")
   category   Category    @relation(fields: [categoryId], references: [id])
   price      Decimal
