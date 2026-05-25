@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,10 +39,16 @@ export default function LoginPage() {
         throw new Error(data.error || "Login failed. Please try again.");
       }
 
+      // Save token and user details to localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       setSuccess(`Welcome back, ${data.user.name}! Redirecting...`);
-      // In future steps, token will be persisted and page will route:
-      // localStorage.setItem("token", data.token);
-      // router.push("/dashboard");
+      
+      // Delay redirect slightly for smooth UX transition
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
     } finally {
