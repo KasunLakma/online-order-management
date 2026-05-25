@@ -231,3 +231,90 @@ export const getOrderById = async (req: AuthenticatedRequest, res: Response): Pr
     res.status(500).json({ error: 'Internal server error while fetching order.' });
   }
 };
+
+/**
+ * Update order status
+ * PUT /api/orders/:id/status
+ */
+export const updateOrderStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const id = parseInt(req.params.id as string, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid order ID.' });
+      return;
+    }
+
+    const { status } = req.body;
+    if (!status) {
+      res.status(400).json({ error: 'Status is required.' });
+      return;
+    }
+
+    const uppercaseStatus = status.toUpperCase();
+    const validStatuses = ['NEW', 'PACKAGING', 'DELIVERED', 'COMPLETED', 'RETURNED', 'CANCELED', 'PENDING'];
+    if (!validStatuses.includes(uppercaseStatus)) {
+      res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+      return;
+    }
+
+    // Check if order exists
+    const existingOrder = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        orderItems: true
+      }
+    });
+
+    if (!existingOrder) {
+      res.status(404).json({ error: 'Order not found.' });
+      return;
+    }
+
+    // If transitioning from an active status to CANCELED/RETURNED, we can increase product stocks
+    const isTransitioningToRestock = 
+      (uppercaseStatus === 'CANCELED' || uppercaseStatus === 'RETURNED') && 
+      (existingOrder.status !== 'CANCELED' && existingOrder.status !== 'RETURNED');
+
+    // Run in a transaction if restocking
+    if (isTransitioningToRestock) {
+      await prisma.$transaction(async (tx) => {
+        // Restock products
+        for (const item of existingOrder.orderItems) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              quantity: {
+                increment: item.qty
+              }
+            }
+          });
+        }
+
+        // Update order status
+        await tx.order.update({
+          where: { id },
+          data: { status: uppercaseStatus }
+        });
+      }, {
+        maxWait: 10000,
+        timeout: 15000
+      });
+    } else {
+      // Just update status directly
+      await prisma.order.update({
+        where: { id },
+        data: { status: uppercaseStatus }
+      });
+    }
+
+    res.status(200).json({
+      message: `Order status updated to ${uppercaseStatus} successfully.`,
+      orderId: id,
+      status: uppercaseStatus
+    });
+  } catch (error: any) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'Internal server error while updating order status.' });
+  }
+};
+

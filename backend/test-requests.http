@@ -209,14 +209,71 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
 
 
 ### ==========================================
+### User & Manager Creation API Testing Requests
+### ==========================================
+
+### 21. Create Manager Account (As Admin - Should Succeed)
+POST http://localhost:5000/api/users
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "HTTP Client Manager",
+  "email": "http-manager@example.com",
+  "password": "managerpassword123",
+  "roleName": "MANAGER"
+}
+
+### 22. Create Manager Account (As Manager - Should Fail 403)
+POST http://localhost:5000/api/users
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "name": "Hack Manager",
+  "email": "hack-manager@example.com",
+  "password": "hackpassword",
+  "roleName": "MANAGER"
+}
+
+### 23. Get All Users (As Admin - Should Succeed)
+GET http://localhost:5000/api/users
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### ==========================================
+### Order Status Workflow API Testing Requests
+### ==========================================
+
+### 24. Update Order Status (As Manager/Admin - Should Succeed)
+PUT http://localhost:5000/api/orders/{{orderId}}/status
+Content-Type: application/json
+Authorization: Bearer {{loginManager.response.body.token}}
+
+{
+  "status": "PACKAGING"
+}
+
+### 25. Cancel Order (As Admin - Should Succeed & Trigger Restocking)
+PUT http://localhost:5000/api/orders/{{orderId}}/status
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "status": "CANCELED"
+}
+
+
+### ==========================================
 ### Clean Up Requests (Optional)
 ### ==========================================
 
-### 21. Delete Product (As Admin - Should Succeed)
+### 26. Delete Product (As Admin - Should Succeed)
 DELETE http://localhost:5000/api/products/{{productId}}
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
-### 22. Delete Category (As Admin - Should Succeed)
+### 27. Delete Category (As Admin - Should Succeed)
 DELETE http://localhost:5000/api/categories/{{categoryId}}
 Authorization: Bearer {{loginAdmin.response.body.token}}
+
 

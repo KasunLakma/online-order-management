@@ -60,6 +60,7 @@ model Customer {
   mobile1 String   @map("mobile_1")
   mobile2 String?  @map("mobile_2")
   address String?
+  city    String?
   email   String?
   notes   String?
   orders  Order[]

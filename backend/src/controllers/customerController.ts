@@ -7,11 +7,12 @@ import prisma from '../config/db';
  */
 export const createCustomer = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, phone, address, notes } = req.body;
+    const { name, email, phone, mobile1, mobile2, address, city, notes } = req.body;
+    const finalMobile1 = phone || mobile1;
 
     // Validate inputs
-    if (!name || !phone) {
-      res.status(400).json({ error: 'Name and phone number are required.' });
+    if (!name || !finalMobile1) {
+      res.status(400).json({ error: 'Name and phone (or mobile1) number are required.' });
       return;
     }
 
@@ -19,8 +20,10 @@ export const createCustomer = async (req: Request, res: Response): Promise<void>
       data: {
         name,
         email: email || null,
-        mobile1: phone,
+        mobile1: finalMobile1,
+        mobile2: mobile2 || null,
         address: address || null,
+        city: city || null,
         notes: notes || null,
       },
     });

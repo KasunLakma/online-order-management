@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createOrder, getOrders, getOrderById } from '../controllers/orderController';
+import { createOrder, getOrders, getOrderById, updateOrderStatus } from '../controllers/orderController';
 import { authMiddleware, requireRole } from '../middlewares/authMiddleware';
 
 const router = Router();
@@ -24,5 +24,11 @@ router.get('/', requireRole(['ADMIN', 'MANAGER']), getOrders);
  * Restrict to ADMIN and MANAGER
  */
 router.get('/:id', requireRole(['ADMIN', 'MANAGER']), getOrderById);
+
+/**
+ * PUT /api/orders/:id/status
+ * Restrict to ADMIN and MANAGER
+ */
+router.put('/:id/status', requireRole(['ADMIN', 'MANAGER']), updateOrderStatus);
 
 export default router;

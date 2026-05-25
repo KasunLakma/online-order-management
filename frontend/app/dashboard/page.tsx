@@ -1,6 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from "recharts";
 
 interface User {
   id: number;
@@ -9,10 +24,36 @@ interface User {
   role: string;
 }
 
+// Chart Mock Data
+const monthlySalesData = [
+  { name: "Jan", sales: 12000 },
+  { name: "Feb", sales: 15000 },
+  { name: "Mar", sales: 18500 },
+  { name: "Apr", sales: 14110 },
+  { name: "May", sales: 24350 }
+];
+
+const orderStatusData = [
+  { name: "New", value: 10, color: "#3b82f6" },
+  { name: "Packaging", value: 18, color: "#f59e0b" },
+  { name: "Delivered", value: 86, color: "#6366f1" },
+  { name: "Returned", value: 6, color: "#f97316" },
+  { name: "Canceled", value: 4, color: "#ef4444" }
+];
+
+const bestSellingProductsData = [
+  { name: "Laptop", qty: 25 },
+  { name: "iPhone 15", qty: 45 },
+  { name: "Galaxy S24", qty: 30 },
+  { name: "Headphones", qty: 15 }
+];
+
 export default function DashboardIndexPage() {
   const [user, setUser] = useState<User | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
@@ -125,6 +166,124 @@ export default function DashboardIndexPage() {
               <span>+4.7%</span>
               <span className="text-slate-500 font-normal">vs last week</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Analytics Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Monthly Sales (AreaChart) */}
+        <div className="lg:col-span-2 backdrop-blur-md bg-white/[0.02] border border-white/5 rounded-2xl p-6 shadow-2xl space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-white">Monthly Sales Overview</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Net sales revenue trends over the past 5 months.</p>
+          </div>
+          <div className="h-64">
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlySalesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "#0f172a",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      color: "#fff"
+                    }}
+                  />
+                  <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">Loading Sales Chart...</div>
+            )}
+          </div>
+        </div>
+
+        {/* Order Status Distribution (PieChart) */}
+        <div className="backdrop-blur-md bg-white/[0.02] border border-white/5 rounded-2xl p-6 shadow-2xl space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-white">Order Status Distribution</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Distribution count across workflow status stages.</p>
+          </div>
+          <div className="h-64 relative flex items-center justify-center">
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={orderStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {orderStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "#0f172a",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      color: "#fff"
+                    }}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    iconSize={8}
+                    iconType="circle"
+                    wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">Loading Status Chart...</div>
+            )}
+          </div>
+        </div>
+
+        {/* Best-Selling Products (BarChart) */}
+        <div className="lg:col-span-3 backdrop-blur-md bg-white/[0.02] border border-white/5 rounded-2xl p-6 shadow-2xl space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-white">Best-Selling Products</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Quantity volume sold for top products.</p>
+          </div>
+          <div className="h-64">
+            {isMounted ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={bestSellingProductsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#64748b" fontSize={11} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      background: "#0f172a",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      color: "#fff"
+                    }}
+                  />
+                  <Bar dataKey="qty" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={40}>
+                    {bestSellingProductsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#8b5cf6" : "#6366f1"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-sm">Loading Products Chart...</div>
+            )}
           </div>
         </div>
       </div>
