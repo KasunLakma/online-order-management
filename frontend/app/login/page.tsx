@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = 'https://online-order-management-production.up.railway.app';
 
 export default function LoginPage() {
   const router = useRouter();
