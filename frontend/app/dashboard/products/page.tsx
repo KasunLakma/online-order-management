@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface Category {
   id: number;
   name: string;
@@ -59,7 +61,7 @@ export default function ProductsPage() {
     setError(null);
     try {
       // Fetch Products
-      const prodRes = await fetch("http://localhost:5000/api/products", {
+      const prodRes = await fetch(`${API_BASE_URL}/api/products`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -70,7 +72,7 @@ export default function ProductsPage() {
       setProducts(prodData.products || []);
 
       // Fetch Categories
-      const catRes = await fetch("http://localhost:5000/api/categories", {
+      const catRes = await fetch(`${API_BASE_URL}/api/categories`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -116,7 +118,7 @@ export default function ProductsPage() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/products", {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

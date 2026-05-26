@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface OrderItem {
   id: number;
   qty: number;
@@ -54,7 +56,7 @@ export default function OrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -89,7 +91,7 @@ export default function OrdersPage() {
     if (!token) return;
     setUpdatingId(orderId);
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

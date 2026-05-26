@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface Category {
   id: number;
   name: string;
@@ -35,7 +37,7 @@ export default function CategoriesPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5000/api/categories", {
+      const response = await fetch(`${API_BASE_URL}/api/categories`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -82,7 +84,7 @@ export default function CategoriesPage() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/categories", {
+      const response = await fetch(`${API_BASE_URL}/api/categories`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

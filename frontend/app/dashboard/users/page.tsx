@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface User {
   id: number;
   name: string;
@@ -34,7 +36,7 @@ export default function UsersPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5000/api/users", {
+      const response = await fetch(`${API_BASE_URL}/api/users`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${authToken}`
@@ -88,7 +90,7 @@ export default function UsersPage() {
     setSubmitLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/users", {
+      const response = await fetch(`${API_BASE_URL}/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
